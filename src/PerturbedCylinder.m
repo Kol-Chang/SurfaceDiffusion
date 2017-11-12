@@ -37,7 +37,7 @@
 	Test_info = fopen(fullfile(Result_Folder,'test_info'), 'w');
 	fprintf(Test_info, 'test start time : \t');
 	fprintf(Test_info, [datestr(Time_Now, 'yy/mm/dd HH:MM:SS'),'\n']);
-	fprintf(Test_info, 'some comments \n');
+	fprintf(Test_info, 'Dt = 0.5 * Dx^4 \n');
 	fclose(Test_info);
 
 D = 0.5;
@@ -61,10 +61,10 @@ GridY = map.GD3.Y;
 GridZ = map.GD3.Z;
 save(fullfile(Result_Folder,'Grid.mat'),'GridX','GridY','GridZ');
 
-Dt = map.GD3.Dx ^ 4;
+Dt = 0.5 * map.GD3.Dx ^ 4;
 
-loops = 500;
-Skip = 10;
+loops = 1000;
+Skip = 20;
 count= 1;
 mov(ceil(loops/Skip)) = struct('cdata',[],'colormap',[]);
 %snap{1000} = [];
