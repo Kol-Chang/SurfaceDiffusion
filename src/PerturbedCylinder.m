@@ -13,7 +13,10 @@
 	end
 	mkdir(Result_Folder) % make a folder
 	
-
+% now cp the src code the Result_Folder
+	Current_src = fullfile(Result_Folder,'src'); % folder to hold current src files
+	mkdir(Current_src)
+	copyfile(fullfile('..','src'),Current_src)
 		
 	
 
@@ -27,10 +30,6 @@
 	else
 		PlatForm = 'unknown';
 	end
-
-
-
-% 
 
 
 		
