@@ -1,3 +1,32 @@
+% before running a test, gather necessary information about this test
+% so that the result can be recovered easily
+
+% time of excution
+	FormatOut = 'yy_mm_dd_HH_MM_SS';
+	Time_Begin = datestr(datetime('now'),FormatOut);
+
+% make a directory tagged with time of excution
+	
+
+% system info
+	if ismac
+		PlatForm = 'Mac';
+	elseif isunix
+		PlatForm = 'unix';
+	elseif ispc
+		PlatForm = 'Windows';
+	else
+		PlatForm = 'unknown';
+	end
+
+
+
+% 
+
+
+		
+		
+
 DATE = datetime('now')
 tic;
 
