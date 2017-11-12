@@ -2,10 +2,19 @@
 % so that the result can be recovered easily
 
 % time of excution
-	FormatOut = 'yy_mm_dd_HH_MM_SS';
+	FormatOut = 'yy_mm_dd_HH_MM_SS_';
 	Time_Begin = datestr(datetime('now'),FormatOut);
 
-% make a directory tagged with time of excution
+% make a directory tagged with time of excution outsider src folder
+	% path of this folder. we randomized the last 3 digits to avoid name clashes
+	Result_Folder = fullfile('..',['exc_' Time_Begin num2str(floor(rand()*1000))]); 
+	while exist(Result_Folder) % if this folder name alread exists -- which will probably never happen
+		Result_Folder = fullfile('..',['exc_' Time_Begin num2str(floor(rand()*1000))]); % rename it
+	end
+	mkdir(Result_Folder) % make a folder
+	
+
+		
 	
 
 % system info
@@ -55,7 +64,7 @@ mov(loops) = struct('cdata',[],'colormap',[]);
 
 figure(gcf)
 
-for ii = 1:loops-1
+for ii = 1:-1
 	disp(ii);
 	A = map.LCF * Dt /2;
 	B = map.GD3.Idt + A;
