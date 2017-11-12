@@ -38,9 +38,6 @@
 	fprintf(Test_info, 'test start time : \t');
 	fprintf(Test_info, [datestr(Time_Now, 'yy/mm/dd HH:MM:SS'),'\n']);
 	fprintf(Test_info, 'some comments \n');
-	fprintf(Test_info, 'some comments \n');
-	fprintf(Test_info, 'some comments \n');
-	fprintf(Test_info, 'some comments \n');
 	fclose(Test_info);
 
 D = 0.5;
@@ -58,16 +55,24 @@ F = max(F1, F2);
 map = SD.SDF3(x,y,z,F)
 map.reinitialization(F)
 
+% save grids
+GridX = map.GD3.X;
+GridY = map.GD3.Y;
+GridZ = map.GD3.Z;
+save(fullfile(Result_Folder,'Grid.mat'),'GridX','GridY','GridZ');
+
 Dt = map.GD3.Dx ^ 4;
 
-loops = 1000;
-mov(loops) = struct('cdata',[],'colormap',[]);
+loops = 500;
+Skip = 10;
+count= 1;
+mov(ceil(loops/Skip)) = struct('cdata',[],'colormap',[]);
 %snap{1000} = [];
 
 figure
 
-for ii = 1:-1
-	disp(ii);
+for ii = 1:loops-1
+
 	A = map.LCF * Dt /2;
 	B = map.GD3.Idt + A;
 	C = map.GD3.Idt - A;
@@ -80,29 +85,30 @@ for ii = 1:-1
 	%map.F = reshape(F_new, map.GD3.Size);
 	map.reinitialization( reshape(F_new, map.GD3.Size) );
 
+	clf
 	map.plotSurface(0,1,'g')
+	time = num2str(ii*Dt);
 	title(num2str(ii*Dt))
-	%map.plot
+	text(map.GD3.xmin,map.GD3.ymax,(map.GD3.zmax+map.GD3.zmin)/2,['  ',time])
 	drawnow
-	mov(ii) = getframe(gcf)
 
-	%snap{ii} = map.F;
-
-	%if (mod(ii,10)==0)
-	%	save('snap.mat','snap')
-	%end
-
-	datetime('now')
+	if (mod(ii,Skip)==0)
+		mov(count) = getframe(gcf);
+		DistanceMap = map.F;
+		save(fullfile(Result_Folder,['DFV',num2str(ii),'.mat']),'DistanceMap')
+		count = count + 1;
+	end
 
 end
 
-save('pinch64mac.mat','mov','DATE')
-
-Elapse = toc;
-	
 % write test end time
 
 	Test_info = fopen(fullfile(Result_Folder,'test_info.txt'), 'a');
 	fprintf(Test_info, 'test end time : \t');
-	fprintf(Test_info, [datestr(datetime('now', 'yy/mm/dd HH:MM:SS'),'\n']);
+	fprintf(Test_info, [datestr(datetime('now'), 'yy/mm/dd HH:MM:SS'),'\n']);
 	fclose(Test_info);
+
+save(fullfile(Result_Folder,'movie.mat'),'mov')
+
+	
+

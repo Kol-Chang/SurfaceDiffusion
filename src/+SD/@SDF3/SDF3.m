@@ -166,7 +166,7 @@ classdef SDF3 < handle
 		end
 
 		% plot the val contour of the distance function
-		function plotSurface(obj,val,trans,Color)
+		function plotSurface(obj,val,trans,Color, time)
 			F = obj.F;
 			surf1 = isosurface(obj.GD3.X,obj.GD3.Y,obj.GD3.Z,F,val);
 			p1 = patch(surf1);

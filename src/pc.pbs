@@ -8,11 +8,8 @@
 #PBS -l walltime=10:00:00
 #PBS -l cput=280:00:00
  
-cd ~tiankuizhang/projects/4\ 3D\ membrane\ dynamics/4.1\ Surface\ Diffusion/
-
+cd ~tiankuizhang/GitHub/SurfaceDiffusion/src
  
 module load matlab/r2017b
 
-date 
 matlab -nodisplay -nosplash < PerturbedCylinder.m 
-date
