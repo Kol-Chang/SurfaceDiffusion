@@ -103,7 +103,7 @@ end
 
 % write test end time
 
-	Test_info = fopen(fullfile(Result_Folder,'test_info.txt'), 'a');
+	Test_info = fopen(fullfile(Result_Folder,'test_end_info'), 'w');
 	fprintf(Test_info, 'test end time : \t');
 	fprintf(Test_info, [datestr(datetime('now'), 'yy/mm/dd HH:MM:SS'),'\n']);
 	fclose(Test_info);
