@@ -1,4 +1,4 @@
-function reinitialization(obj, Distance)
+function reinitialization2(obj, Distance)
 
 	Epsilon = 10^(-10);
 	Ny = obj.GD3.mrows;
@@ -22,17 +22,113 @@ function reinitialization(obj, Distance)
 %	du0 = circshift(d0, [0 0 -1]); du0(:,:,end) = d0(:,:,end);	% z:up
 %	dd0 = circshift(d0, [0 0 1]);  dd0(:,:,1)   = d0(:,:,1);	% z:down
 
-	dl0 = d0(obj.GD3.oxo); dl0(:,1,:)   = d0(:,1,:);	% x:left
-	dr0 = d0(obj.GD3.oXo); dr0(:,end,:) = d0(:,end,:);	% x:right
-	df0 = d0(obj.GD3.Yoo); df0(end,:,:) = d0(end,:,:);	% y:front
-	db0 = d0(obj.GD3.yoo); db0(1,:,:)   = d0(1,:,:);	% y:back
-	du0 = d0(obj.GD3.ooZ); du0(:,:,end) = d0(:,:,end);	% z:up
-	dd0 = d0(obj.GD3.ooz); dd0(:,:,1)   = d0(:,:,1);	% z:down
+	
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% soomth out small structures
+	% this process turns out to be a bad choice so I will not pursue in this direction further
+	% and I will not test it anymore
+
+	Num_Contact = 100;
+	count = 0;
+	max_count = 10;
+
+	while Num_Contact & count < max_count
+
+		dl0 = d0(obj.GD3.oxo); dl0(:,1,:)   = d0(:,1,:);	% x:left
+		dr0 = d0(obj.GD3.oXo); dr0(:,end,:) = d0(:,end,:);	% x:right
+		df0 = d0(obj.GD3.Yoo); df0(end,:,:) = d0(end,:,:);	% y:front
+		db0 = d0(obj.GD3.yoo); db0(1,:,:)   = d0(1,:,:);	% y:back
+		du0 = d0(obj.GD3.ooZ); du0(:,:,end) = d0(:,:,end);	% z:up
+		dd0 = d0(obj.GD3.ooz); dd0(:,:,1)   = d0(:,:,1);	% z:down
 
 		% x direction
 
 		mxr = d0.*dr0<0; % boundary points to the right of the boundary in x direction
 		mxl = circshift(mxr, [0 1 0]); % boundary points to the left of the boundary in x direction
+
+		contact_x = mxr & mxl; % very narrow structure
+
+		% y direction
+
+		myf = d0.*df0<0; % boundary points to the back of the boundary in y direction
+		myb = circshift(myf, [1 0 0]);
+
+		contact_y = myf & myb;
+
+		% z direction
+
+		mzu = d0.*du0<0; % boundary points to the downward of the boundary in the z direction
+		mzd = circshift(mzu, [0 0 1]);
+
+		contact_z = mzu & mzd;
+
+		contact_sx = contact_x & ~contact_y & ~contact_z;
+		contact_sy = contact_y & ~contact_z & ~contact_x;
+		contact_sz = contact_z & ~contact_x & ~contact_y;
+
+		contact_xy = contact_x & contact_y & ~contact_z;
+		contact_yz = contact_y & contact_z & ~contact_x;
+		contact_zx = contact_z & contact_z & ~contact_y;
+
+		contact_xyz = contact_x & contact_y & contact_z;
+
+		%if nnz(contact_sx)
+		%	d0(contact_sx) = (dl0(contact_sx) + dr0(contact_sx)) / 2;
+		%end
+
+		%if nnz(contact_sy)
+		%	d0(contact_sy) = (df0(contact_sy) + db0(contact_sy)) / 2;
+		%end
+
+		%if nnz(contact_sz)
+		%	d0(contact_sz) = (du0(contact_sz) + dd0(contact_sz)) / 2;
+		%end
+
+		if nnz(contact_xy)
+			d0(contact_xy) = (dl0(contact_xy) + dr0(contact_xy) + df0(contact_xy) + db0(contact_xy)) / 4;
+		end
+
+		if nnz(contact_yz)
+			d0(contact_yz) = (df0(contact_yz) + db0(contact_yz) + du0(contact_yz) + dd0(contact_yz)) / 4;
+		end
+
+		if nnz(contact_zx)
+			d0(contact_zx) = (du0(contact_zx) + dd0(contact_zx) + dl0(contact_zx) + dr0(contact_zx)) / 4;
+		end
+
+		if nnz(contact_xyz)
+			d0(contact_xyz) = (	dl0(contact_xyz) + dr0(contact_xyz) + ...
+								df0(contact_xyz) + db0(contact_xyz) + ...
+								du0(contact_xyz) + dd0(contact_xyz)) / 4;
+		end
+
+		Num_Contact = nnz(contact_xy) + nnz(contact_yz) + nnz(contact_zx) + nnz(contact_xyz);
+
+		disp([num2str(Num_Contact),' points in close contact ...']);
+
+		count = count + 1;
+
+	end
+
+
+	
+
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
+
+		dl0 = d0(obj.GD3.oxo); dl0(:,1,:)   = d0(:,1,:);	% x:left
+		dr0 = d0(obj.GD3.oXo); dr0(:,end,:) = d0(:,end,:);	% x:right
+		df0 = d0(obj.GD3.Yoo); df0(end,:,:) = d0(end,:,:);	% y:front
+		db0 = d0(obj.GD3.yoo); db0(1,:,:)   = d0(1,:,:);	% y:back
+		du0 = d0(obj.GD3.ooZ); du0(:,:,end) = d0(:,:,end);	% z:up
+		dd0 = d0(obj.GD3.ooz); dd0(:,:,1)   = d0(:,:,1);	% z:down
+
+		% x direction
+
+		mxr = d0.*dr0<0; % boundary points to the right of the boundary in x direction
+		mxl = circshift(mxr, [0 1 0]); % boundary points to the left of the boundary in x direction
+
 			
 		P2x0r = (dl0(mxr)+dr0(mxr)-2*d0(mxr));
 		P2x0l = (dl0(mxl)+dr0(mxl)-2*d0(mxl));
@@ -64,6 +160,7 @@ function reinitialization(obj, Distance)
 
 		myf = d0.*df0<0; % boundary points to the back of the boundary in y direction
 		myb = circshift(myf, [1 0 0]);
+
 					
 		P2y0f = (df0(myf)+db0(myf)-2*d0(myf));
 		P2y0b = (df0(myb)+db0(myb)-2*d0(myb));
@@ -95,7 +192,7 @@ function reinitialization(obj, Distance)
 		mzu = d0.*du0<0; % boundary points to the downward of the boundary in the z direction
 		mzd = circshift(mzu, [0 0 1]);
 
-		
+
 
 		P2z0u = (du0(mzu)+dd0(mzu)-2*d0(mzu));
 		P2z0d = (du0(mzd)+dd0(mzd)-2*d0(mzd));

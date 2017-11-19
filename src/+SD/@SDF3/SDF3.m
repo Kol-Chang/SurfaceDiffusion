@@ -19,7 +19,8 @@ classdef SDF3 < handle
 		Fzx % cross derivatives
 
 		epsilon = 1e-4; % see 2003_Smereka
-		Fg % magnitude of gradient
+		Fg % magnitude of gradient with soomthing
+		Fg_1 % magnitude of gradient without soomthing
 		Nx % x component of normal vectors
 		Ny % y component of normal vectors
 		Nz % z component of normal vectors
@@ -53,6 +54,7 @@ classdef SDF3 < handle
 			obj.Fyz = (val(obj.GD3.YoZ) + val(obj.GD3.yoz) - val(obj.GD3.Yoz) - val(obj.GD3.yoZ)) / (4*obj.GD3.Ds.^2);
 			obj.Fzx = (val(obj.GD3.oXZ) + val(obj.GD3.oxz) - val(obj.GD3.oXz) - val(obj.GD3.oxZ)) / (4*obj.GD3.Ds.^2);
 			obj.Fg = sqrt(obj.Fx.^2 + obj.Fy.^2 + obj.Fz.^2 + obj.epsilon);
+			obj.Fg_1 = sqrt(obj.Fx.^2 + obj.Fy.^2 + obj.Fz.^2 );
 			obj.Nx = obj.Fx ./ obj.Fg;
 			obj.Ny = obj.Fy ./ obj.Fg;
 			obj.Nz = obj.Fz ./ obj.Fg;
@@ -65,7 +67,7 @@ classdef SDF3 < handle
 						obj.GD3.SparseDiag(obj.Ny .* obj.Nz) * obj.GD3.Lyz * 2 + ...
 						obj.GD3.SparseDiag(obj.Nz .* obj.Nx) * obj.GD3.Lzx * 2  );
 
-			obj.LCF = obj.GD3.SparseDiag(obj.Fg) * obj.LSL * obj.GD3.SparseDiag(1./obj.Fg) * obj.LSL;
+			obj.LCF = obj.GD3.SparseDiag(obj.Fg_1) * obj.LSL * obj.GD3.SparseDiag(1./obj.Fg) * obj.LSL;
 						
 			obj.SC = (obj.Fxx + obj.Fyy + obj.Fzz ...
 				- obj.Nx .* obj.Nx .* obj.Fxx ... 
@@ -75,7 +77,7 @@ classdef SDF3 < handle
 				- obj.Ny .* obj.Nz .* obj.Fyz * 2 ...
 				- obj.Nz .* obj.Nx .* obj.Fzx * 2 ) ./ obj.Fg;
 
-			obj.NCF = obj.Fg .* obj.SC .* obj.ND(obj.SC);
+			obj.NCF = obj.Fg_1 .* obj.SC .* obj.ND(obj.SC);
 			%obj.CF = obj.SL(obj.SC);
 
 			
@@ -118,6 +120,7 @@ classdef SDF3 < handle
 
 	methods
 		reinitialization(obj, Distance)
+		reinitialization2(obj, Distance)
 	end
 
 

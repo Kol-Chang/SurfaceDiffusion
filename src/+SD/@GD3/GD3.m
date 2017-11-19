@@ -167,6 +167,7 @@ classdef GD3 < handle
 		end
 
 		% create a sparse diagonal matrix out of a field
+		% look up the function spdiags and replace it with the built-in function
 		function val = SparseDiag(obj, Field)
 			val = sparse(obj.ooo(:), obj.ooo(:), reshape(Field,[],1), obj.NumElt, obj.NumElt);
 		end
