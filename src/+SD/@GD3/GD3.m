@@ -60,8 +60,11 @@ classdef GD3 < handle
 		yxZ
 		yxz
 
-		% sencond order derivative operators (including cross derivatives)
+		% first/sencond order derivative operators (including cross derivatives)
 		% using centeral difference with periodic boundary condition
+		Lx
+		Ly
+		Lz
 		Lxx
 		Lyy
 		Lzz
@@ -135,6 +138,15 @@ classdef GD3 < handle
 			obj.yXz = circshift(obj.ooo, [	1	-1	1	]); 
 			obj.yxZ = circshift(obj.ooo, [	1	1	-1	]);
 			obj.yxz = circshift(obj.ooo, [	1	1	1	]); 
+
+			obj.Lx  =	( sparse(obj.ooo(:), obj.oXo(:),	1,	obj.NumElt, obj.NumElt) ...
+						+ sparse(obj.ooo(:), obj.oxo(:),	-1,	obj.NumElt, obj.NumElt) ) / (2*obj.Dx);
+
+			obj.Ly  =	( sparse(obj.ooo(:), obj.Yoo(:),	1,	obj.NumElt, obj.NumElt) ...
+						+ sparse(obj.ooo(:), obj.yoo(:),	-1,	obj.NumElt, obj.NumElt) ) / (2*obj.Dy);
+
+			obj.Lz  = 	( sparse(obj.ooo(:), obj.ooZ(:),	1,	obj.NumElt, obj.NumElt) ...
+						+ sparse(obj.ooo(:), obj.ooz(:),	-1,	obj.NumElt, obj.NumElt) ) / (2*obj.Dz); 
 
 			obj.Lxx =	( sparse(obj.ooo(:), obj.oXo(:),	1,	obj.NumElt, obj.NumElt) ...
 						+ sparse(obj.ooo(:), obj.ooo(:),	-2,	obj.NumElt, obj.NumElt) ...

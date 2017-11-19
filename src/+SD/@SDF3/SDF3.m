@@ -31,6 +31,9 @@ classdef SDF3 < handle
 		SC % sum of principal curvatures. unit sphere has TC equal to 2
 		CF % curvature force
 		NCF % nonlinear part of the curvature force 
+
+		LND % normal derivative operator
+		CF_Op % curvature force operator
 	end
 
 
@@ -67,7 +70,12 @@ classdef SDF3 < handle
 						obj.GD3.SparseDiag(obj.Ny .* obj.Nz) * obj.GD3.Lyz * 2 + ...
 						obj.GD3.SparseDiag(obj.Nz .* obj.Nx) * obj.GD3.Lzx * 2  );
 
-			obj.LCF = obj.GD3.SparseDiag(obj.Fg_1) * obj.LSL * obj.GD3.SparseDiag(1./obj.Fg) * obj.LSL;
+			obj.LND = obj.GD3.SparseDiag(obj.Nx) * obj.GD3.Lx + ...
+					  obj.GD3.SparseDiag(obj.Ny) * obj.GD3.Ly + ...
+					  obj.GD3.SparseDiag(obj.Nz) * obj.GD3.Lz ;
+
+
+			%obj.LCF = obj.GD3.SparseDiag(obj.Fg_1) * obj.LSL * obj.GD3.SparseDiag(1./obj.Fg) * obj.LSL;
 						
 			obj.SC = (obj.Fxx + obj.Fyy + obj.Fzz ...
 				- obj.Nx .* obj.Nx .* obj.Fxx ... 
@@ -77,12 +85,16 @@ classdef SDF3 < handle
 				- obj.Ny .* obj.Nz .* obj.Fyz * 2 ...
 				- obj.Nz .* obj.Nx .* obj.Fzx * 2 ) ./ obj.Fg;
 
-			obj.NCF = obj.Fg_1 .* obj.SC .* obj.ND(obj.SC);
+			%obj.NCF = obj.Fg_1 .* obj.SC .* obj.ND(obj.SC);
 			%obj.CF = obj.SL(obj.SC);
 
 			
 			
 			%obj.TotalCurvature = reshape(obj.SparseDiag(1./obj.Fg) * obj.LSL * obj.F(:), obj.GD3.Size);
+
+			obj.CF_Op = obj.GD3.SparseDiag(obj.Fg_1) * ...
+					  ( obj.LSL - obj.GD3.SparseDiag(obj.SC) * obj.LND ) * ...
+					  obj.GD3.SparseDiag(1./obj.Fg) * obj.LSL ;
 		end
 
 	end
