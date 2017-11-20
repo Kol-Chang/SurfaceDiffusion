@@ -61,10 +61,11 @@ GridY = map.GD3.Y;
 GridZ = map.GD3.Z;
 save(fullfile(Result_Folder,'Grid.mat'),'GridX','GridY','GridZ');
 
-Dt = 0.5 * map.GD3.Dx ^ 4;
+Dt = 5 * map.GD3.Dx ^ 4;
 
-loops = 500;
-Skip = 10;
+loops = 100;
+Skip = 1;
+SkipR = 1;
 count= 1;
 mov(ceil(loops/Skip)) = struct('cdata',[],'colormap',[]);
 %snap{1000} = [];
@@ -103,24 +104,28 @@ for ii = 1:loops-1
 	%	count = count + 1;
 	end
 
-	map.reinitialization( reshape(F_new, map.GD3.Size) );
+	if (mod(ii,SkipR)==0)
+		map.reinitialization( reshape(F_new, map.GD3.Size) );
+		clf
+		map.plotSurface(0,1,'g')
+		time = num2str(ii*Dt);
+		title(num2str(ii*Dt))
+		text(map.GD3.xmin,map.GD3.ymax,(map.GD3.zmax+map.GD3.zmin)/2,['AR',num2str(ii),':',time])
+		drawnow
 
-	clf
-	map.plotSurface(0,1,'g')
-	time = num2str(ii*Dt);
-	title(num2str(ii*Dt))
-	text(map.GD3.xmin,map.GD3.ymax,(map.GD3.zmax+map.GD3.zmin)/2,['AR',num2str(ii),':',time])
-	drawnow
+		if (mod(ii,Skip)==0)
+			%	mov(count) = getframe(gcf);
+			DistanceMap = map.F;
+			saveas(gcf, fullfile(Result_Folder,[num2str(ii),'AR','.png']))
+			save(fullfile(Result_Folder,['DFV',num2str(ii),'AR','.mat']),'DistanceMap')
+			%	count = count + 1;
+		end
+	end
 
+	
 	%saveas(gcf, fullfile(Result_Folder,[num2str(ii),'AR','.png']))
 
-	if (mod(ii,Skip)==0)
-	%	mov(count) = getframe(gcf);
-		DistanceMap = map.F;
-		saveas(gcf, fullfile(Result_Folder,[num2str(ii),'AR','.png']))
-		save(fullfile(Result_Folder,['DFV',num2str(ii),'AR','.mat']),'DistanceMap')
-	%	count = count + 1;
-	end
+	
 
 end
 
