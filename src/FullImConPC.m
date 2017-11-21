@@ -38,6 +38,7 @@
 	fprintf(Test_info, 'test start time : \t');
 	fprintf(Test_info, [datestr(Time_Now, 'yy/mm/dd HH:MM:SS'),'\n']);
 	fprintf(Test_info, 'test file: FullImConPC \n');
+	fprintf(Test_info, 'test info: try to accerlerate convergence of iters \n');
 	fclose(Test_info);
 
 D = 0.5;
@@ -46,7 +47,8 @@ Alpha = 2;
 [x, y, z] = meshgrid(linspace(-pi-D,pi+D,64)/Alpha);
 
 C1 = pi/(2*Alpha); 
-C2 = 0.90 * C1/2;
+%C2 = 0.90 * C1/2;
+C2 = 0.8 * C1/2;
 
 F1 = sqrt(x.^2+y.^2) - (C1-C2*(cos(Alpha * z)+1));
 F2 = max(z-pi/Alpha,-z-pi/Alpha);
@@ -61,7 +63,7 @@ GridY = map.GD3.Y;
 GridZ = map.GD3.Z;
 save(fullfile(Result_Folder,'Grid.mat'),'GridX','GridY','GridZ');
 
-Dt = 5 * map.GD3.Dx ^ 4;
+Dt = 20 * map.GD3.Dx ^ 4;
 
 loops = 100;
 Skip = 1;
@@ -78,11 +80,25 @@ for ii = 1:loops-1
 	B = map.GD3.Idt + A;
 	C = map.GD3.Idt - A;
 
+
+
 	F_old = map.F;
 	S = C * F_old(:);
+
+	keyboard
+
 	%F_new = bicg(B, S);
 	%F_new = bicgstab(B, S, [], 50);
-	F_new = bicgstab(B, S, 1e-7, 200);
+	[L,U]=ilu(B,struct('type','nofill','milu','row')); % this seems to be the only pratical setup 
+
+	% preconditioner
+
+	% it seems that providing a intial guess will slow the algorithm down with either methods
+	% after some comparing bicgstab outperforms all other mehtods except gmres wihtout restart
+	% gmres with restart less than 30 performs worse than bicgstab
+	% with no restart gmres provide best performance
+	%F_new = bicgstab(B, S, 1e-12, 200, L, U);
+	F_new = gmres(B, S, 50, 1e-12, 10, L, U);
 	%F_new = pcg(B, S);
 	%map.F = reshape(F_new, map.GD3.Size);
 	map.F = reshape(F_new, map.GD3.Size);
